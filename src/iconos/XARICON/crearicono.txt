@@ -1,0 +1,13 @@
+El protocolo de creacion de iconos es:
+Crear un icono y transformarlo a formato ico con IIco:
+todods los iconos que tenemos en el programa son 22x22 o 16x16
+El fichero se crea con XARA se redimensiona a 24x24 y se exporta a PNG
+haciendo Difussion Error 
+una vez tenemos el fichero abrir una ventana de wish84
+package require Img
+cd C:/VTKBANBRANDY/trunk/iconos/XARICON
+set aa [image create photo -file "nombre del fichero PNG"]
+nos devuelve un identificador que es el nombre de la imagen
+y ahora
+$aa data -format gif
+devuelve un texto ascii copiarlo e insertarlo en brandy

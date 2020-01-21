@@ -1,0 +1,4 @@
+se compila con Microsoft Visual NO CON G77¡¡¡¡¡¡:
+
+f2c -f *.f
+cl -FePLOBRAN.exe PLOTBRANDY.c "C:\Archivos de programa\Microsoft Visual Studio 8\VC\lib\f2c.lib"

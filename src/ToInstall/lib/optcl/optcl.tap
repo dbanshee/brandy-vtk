@@ -1,0 +1,23 @@
+format  {TclDevKit Project File}
+fmtver  2.0
+fmttool {TclDevKit TclApp PackageDefinition} 3.2
+
+##  Saved at : Wed Aug 10 13:04:46 Hora de verano romance 2005
+##  By       : gretor@gretor
+
+########
+#####
+###
+##
+#
+
+Package {optcl 3.0}
+Base    C:/Tcl/lib/optcl
+Path    optcl.dll
+Path    pkgIndex.tcl
+
+#
+##
+###
+#####
+########

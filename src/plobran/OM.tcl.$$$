@@ -1,0 +1,80 @@
+source colors.tcl
+#dibujando orbitales moleculares con VTK
+#package require vtk
+#package require vtkinteraction
+#le pongo titulo
+set root [toplevel .top]
+wm title .top "BrandyMol OM"
+wm protocol .top WM_DELETE_WINDOW exit
+wm withdraw .
+#creo el visor
+vtkRenderWindow renWin
+set renWidget [vtkTkRenderWidget $root.ren -width 400 -height 400 -rw renWin]
+::vtk::bind_tk_render_widget $renWidget
+set level 60
+vtkRenderer ren1
+renWin AddRenderer ren1
+#creo una frame en top
+set keyfrm [frame $root.keyfrm]
+set keywarm [scale $keyfrm.warm -from 0 -to 256 -res 1 -orient vertical -command cambiolev]
+$keywarm set 60
+#ahora creo lo que voy a dibujar en renwin
+# ............................................
+# create pipeline
+vtkStructuredPointsReader reader
+    reader SetFileName "borb.vtk"
+    reader SetScalarsName "POS"
+    reader Update
+# data in range 0..512
+vtkStructuredPointsReader readern
+    readern SetFileName "borb.vtk"
+    readern SetScalarsName "NEG"
+    readern Update
+# data in range 0..512
+vtkMarchingCubes isopos
+    isopos SetInput [reader GetOutput]
+    isopos SetValue 0 $level
+#    iso SetNumberOfContours 4
+    isopos ComputeNormalsOn
+#    reader SetScalarsName "TOT"
+#    reader Update
+vtkMarchingCubes isoneg
+    isoneg SetInput [readern GetOutput]
+    isoneg SetValue 0 $level
+#    iso SetNumberOfContours 4
+    isoneg ComputeNormalsOn
+vtkPolyDataMapper isoMapperpos
+    isoMapperpos SetInput [isopos GetOutput]
+#  deleting next command results in a blue iso surface...
+    isoMapperpos ScalarVisibilityOff
+vtkPolyDataMapper isoMapperneg
+    isoMapperneg SetInput [isoneg GetOutput]
+#  deleting next command results in a blue iso surface...
+    isoMapperneg ScalarVisibilityOff
+
+vtkActor isoActorpos
+    isoActorpos SetMapper isoMapperpos
+vtkActor isoActorneg
+    isoActorneg SetMapper isoMapperneg
+
+# select iso surface color ...
+    eval [isoActorpos GetProperty] SetColor $venetian_red
+    eval [isoActorneg GetProperty] SetColor $blue
+# assign our actor to the renderer
+    ren1 AddActor isoActorpos
+    ren1 AddActor isoActorneg
+# ............................................
+# background white
+    ren1 SetBackground 0.5000 0.5400 0.5300
+pack $keyfrm $keywarm -side left -fill y
+pack $renWidget -side left -fill both -expand 1
+}
+
+
+proc cambiolev {res} {
+    global level 
+    set level $res
+    isopos SetValue 0 $res
+    isoneg SetValue 0 $res
+    renWin Render
+}

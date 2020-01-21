@@ -1,0 +1,748 @@
+#
+# Copyright (c) 2003, Ashok P. Nadkarni
+# All rights reserved.
+#
+# See the file LICENSE for license
+
+# This file contains tests for commands from the share.tcl
+
+package require tcltest
+eval tcltest::configure $argv
+
+source [file join [file dirname [info script]] testutil.tcl]
+load_twapi
+
+namespace eval twapi::share::test {
+    namespace import ::tcltest::test
+    ::tcltest::testConstraint win2k [twapi::min_os_version 5]
+
+    variable export_dir 
+    set export_dir [file join $::env(TEMP) "TWAPI_TEST"]
+
+    variable export_name "TWAPI_EXPORT"
+
+    variable shares
+    proc fill_shares {{refresh 0}} {
+        variable shares
+        if {$refresh || ![info exists shares]} {
+            array unset shares;       # Forget stale info
+            set fd [open "| cscript.exe /nologo share.vbs"]
+            while {[gets $fd line] >= 0} {
+                if {[string length $line] == 0} continue
+                array unset share
+                array set share [split $line "*"]
+                if {$share(AllowMaximum) == "True"} {
+                    set share(MaximumAllowed) -1
+                }
+                set index [string tolower $share(Name)]
+                set shares($index) [list \
+                                       -name     $share(Name) \
+                                       -max_conn $share(MaximumAllowed) \
+                                       -path     $share(Path) \
+                                       -comment  $share(Caption) \
+                                       -type     [twapi::_share_type_code_to_symbols $share(Type)] \
+                                      ]
+                #parray shares
+                #puts ------------------
+            }
+        }
+    }
+
+    proc get_share_field {sharename field {refresh 0}} {
+        variable shares
+        fill_shares $refresh
+        set name [string tolower $sharename]
+        if {![info exists shares($name)]} {
+            error "Share $name does not exist"
+        }
+        return [get_kl_field $shares($name) $field]
+    }
+
+    proc verify_share {name v_shareinfo {refresh 0}} {
+        variable shares
+        upvar    $v_shareinfo shareinfo
+
+        fill_shares $refresh
+        set result [list ]
+        foreach opt {-name -path} {
+            if {[info exists shareinfo($opt)]} {
+                if {[string compare -nocase $shareinfo($opt) [get_share_field $name $opt]]} {
+                    lappend result "Mismatch in share field $opt - expected [get_share_field $name $opt], got $shareinfo($opt)"
+                }
+            }
+        }
+
+        if {[info exists shareinfo(-comment)]} {
+            # The VBS script will return the name as the comment if the comment
+            # is empty so check for that as well
+            if {[string compare -nocase $shareinfo(-comment) [get_share_field $name -comment]] &&
+                ($shareinfo(-comment) != "") } {
+                lappend result "Mismatch in share field -comment - expected [get_share_field $name -comment], got $shareinfo(-comment)"
+            }
+        }
+
+        if {[info exists shareinfo(-max_conn)]} {
+            if {$shareinfo(-max_conn) != [get_share_field $name -max_conn]} {
+                    lappend result "Mismatch in share field -max_conn - expected [get_share_field $name -max_conn], got $shareinfo(-max_conn)"
+            }
+        }
+        if {[info exists shareinfo(-type)]} {
+            if {[llength [setops::symdiff $shareinfo(-type) [get_share_field $name -type]]]} {
+                lappend result "Mismatch in share field -type - expected [get_share_field $name -type], got $shareinfo(-type)"
+            }
+        }
+        
+        return [concat [join $result \n]]
+    }
+
+    proc share_exists {name} {
+        variable shares
+        fill_shares 1
+        return [info exists shares([string tolower $name])]
+    }
+
+    # Verify list of shares.
+    # matchspec is used to select shares based on criteria
+    # If empty, all shares are included
+    # Else it is of the form {FIELD INCVALS EXCVALS}
+    # where FIELD is the field name, eg. -type, INCVALS is a list of
+    # values that must be present and EXCVALS is a list of values that
+    # must NOT be present
+    # typesepc is like {-type file} or {-type {file special}} or
+    # {} to check all shares
+    proc verify_share_list {sharelist typespec {refresh 0}} {
+        variable shares
+        fill_shares $refresh
+        
+        foreach {field incvals excvals } $typespec break
+
+        set xshares [list ]
+        foreach s $sharelist {
+            lappend xshares [string tolower $s]
+        }
+
+        set yshares [list ]
+        foreach {s sdata} [array get shares] {
+            if {[llength $typespec] == 0} {
+                lappend yshares $s
+            } else {
+                set match 1
+                foreach val $incvals {
+                    if {[lsearch [get_kl_field $sdata $field] $val] < 0} {
+                        #puts "Did not find $val in [get_kl_field $sdata $field] for $s"
+                        set match 0
+                        break
+                    }
+                }
+                if {$match} {
+                    foreach val $excvals {
+                        if {[lsearch [get_kl_field $sdata $field] $val] >= 0} {
+                            set match 0
+                            break
+                        }
+                    }
+                }
+                if {$match} {
+                    lappend yshares $s
+                }
+            }
+        }
+        return [setops::symdiff $xshares $yshares]
+    }
+
+    # Delete the share used for testing
+    proc delete_test_share {} {
+        variable export_name
+        if {[catch {exec net share $export_name /delete} msg]} {
+            if {![string match "This shared resource does not exist*" $msg]} {
+                error "Error while deleting share: $msg"
+            }
+        }
+    }
+
+    # Create test share if it does not exist
+    proc make_test_share {} {
+        variable export_name
+        variable export_dir
+
+        if {[share_exists $export_name]} return
+        exec net share $export_name=$export_dir
+        if {![share_exists $export_name]} {
+            error "Failed to create test share"
+        }
+    }
+
+
+    ################################################################
+
+    test new_share-1.0 {
+        Create a new share using defaults
+    } -constraints {
+        nt systemmodificationok
+    } -setup {
+        delete_test_share;    # In case it was left over from a failed test
+        file mkdir $export_dir
+    } -body {
+        twapi::new_share $export_name $export_dir 
+        expr {
+              [share_exists $export_name] &&
+              [get_share_field $export_name -name 1] == $export_name &&
+              [get_share_field $export_name -path 0] == $export_dir &&
+              [get_share_field $export_name -comment 0] == $export_name &&
+              [get_share_field $export_name -max_conn 0] == -1 &&
+              [get_share_field $export_name -type 0] == "file"
+          }
+    } -cleanup {
+        delete_test_share
+    } -result 1
+
+    ###
+
+    test new_share-2.0 {
+        Create a new share with a limited number of connections
+    } -constraints {
+        nt systemmodificationok
+    } -setup {
+        delete_test_share;    # In case it was left over from a failed test
+        file mkdir $export_dir
+    } -body {
+        twapi::new_share $export_name $export_dir -max_conn 10
+        expr {
+              [share_exists $export_name] &&
+              [get_share_field $export_name -name 1] == $export_name &&
+              [get_share_field $export_name -path 0] == $export_dir &&
+              [get_share_field $export_name -comment 0] == $export_name &&
+              [get_share_field $export_name -max_conn 0] == 10 &&
+              [get_share_field $export_name -type 0] == "file"
+          }
+    } -cleanup {
+        delete_test_share
+    } -result 1
+
+    ###
+
+    test new_share-3.0 {
+        Create a new share with a specific comment
+    } -constraints {
+        nt systemmodificationok
+    } -setup {
+        delete_test_share;    # In case it was left over from a failed test
+        file mkdir $export_dir
+    } -body {
+        set comment "This is a TWAPI share"
+        twapi::new_share $export_name $export_dir -comment $comment
+        expr {
+              [share_exists $export_name] &&
+              [get_share_field $export_name -name 1] == $export_name &&
+              [get_share_field $export_name -path 0] == $export_dir &&
+              [get_share_field $export_name -comment 0] == $comment &&
+              [get_share_field $export_name -max_conn 0] == -1 &&
+              [get_share_field $export_name -type 0] == "file"
+          }
+    } -cleanup {
+        delete_test_share
+    } -result 1
+
+    ###
+
+    test new_share-4.0 {
+        Create a new share with a security descriptor
+    } -constraints {
+        nt systemmodificationok TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result 1
+
+    ###
+
+    test new_share-5.0 {
+        Create a new share of type file
+    } -constraints {
+        nt systemmodificationok
+    } -setup {
+        delete_test_share;    # In case it was left over from a failed test
+        file mkdir $export_dir
+    } -body {
+        twapi::new_share $export_name $export_dir -type file
+        expr {
+              [share_exists $export_name] &&
+              [get_share_field $export_name -name 1] == $export_name &&
+              [get_share_field $export_name -path 0] == $export_dir &&
+              [get_share_field $export_name -comment 0] == $export_name &&
+              [get_share_field $export_name -max_conn 0] == -1 &&
+              [get_share_field $export_name -type 0] == "file"
+          }
+    } -cleanup {
+        delete_test_share
+    } -result 1
+
+    ###
+
+    test new_share-5.1 {
+        Create a new share of type print
+    } -constraints {
+        nt systemmodificationok TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result 1
+
+    ###
+
+    test new_share-5.2 {
+        Create a new share of type device
+    } -constraints {
+        nt systemmodificationok TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result 1
+
+    ###
+
+    test new_share-5.3 {
+        Create a new share of type ipc
+    } -constraints {
+        nt systemmodificationok TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ###
+
+    test new_share-5.4 {
+        Create a new temporary share
+    } -constraints {
+        nt systemmodificationok TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ###
+
+    test new_share-5.5 {
+        Create a new special share of type file
+    } -constraints {
+        nt systemmodificationok
+    } -setup {
+        delete_test_share;    # In case it was left over from a failed test
+        file mkdir $export_dir
+    } -body {
+        twapi::new_share $export_name $export_dir -type {file special}
+        expr {
+              [share_exists $export_name] &&
+              [get_share_field $export_name -name 1] == $export_name &&
+              [get_share_field $export_name -path 0] == $export_dir &&
+              [get_share_field $export_name -comment 0] == $export_name &&
+              [get_share_field $export_name -max_conn 0] == -1 &&
+              [get_share_field $export_name -type 0] == "file special"
+          }
+    } -cleanup {
+        delete_test_share
+    } -result 1
+
+    ###
+
+    test new_share-6.0 {
+        Create a share on another system
+    } -constraints {
+        nt systemmodificationok TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ################################################################
+
+    test delete_share-1.0 {
+        Delete a share
+    } -constraints {
+        nt systemmodificationok
+    } -setup {
+        delete_test_share;    # In case it was left over from a failed test
+        file mkdir $export_dir
+        twapi::new_share $export_name $export_dir -type {file special}
+    } -body {
+        twapi::delete_share $export_name
+        share_exists $export_name
+    } -result 0
+
+    ###
+
+    test delete_share-2.0 {
+        Delete a share on another system
+    } -constraints {
+        nt systemmodificationok TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ################################################################
+
+    test get_shares-1.0 {
+        Enumerate shares
+    } -constraints {
+        nt
+    } -body {
+        verify_share_list [twapi::get_shares] {} 1
+    } -result ""
+
+    ###
+
+    test get_shares-2.0 {
+        Enumerate shares of type file
+    } -constraints {
+        nt
+    } -body {
+        verify_share_list [twapi::get_shares -type file] {-type file} 1
+    } -result ""
+
+    ###
+
+    test get_shares-2.1 {
+        Enumerate non-special shares of type file
+    } -constraints {
+        nt
+    } -body {
+        verify_share_list [twapi::get_shares -type file -excludespecial] {-type file special} 1
+    } -result ""
+
+    ###
+
+    test get_shares-3.0 {
+        Enumerate shares of type IPC
+    } -constraints {
+        nt
+    } -body {
+        verify_share_list [twapi::get_shares -type ipc] {-type ipc} 1
+    } -result ""
+
+    ###
+
+    test get_shares-3.1 {
+        Enumerate non-special shares of type IPC
+    } -constraints {
+        nt
+    } -body {
+        verify_share_list [twapi::get_shares -type ipc -excludespecial] {-type ipc special} 1
+    } -result ""
+
+    ###
+
+    test get_shares-4.0 {
+        Enumerate shares on another system
+    } -constraints {
+        nt TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ################################################################
+
+    test get_share_info-1.0 {
+        Verify that empty list returned get_share_info when no options specified
+    } -constraints {
+        nt
+    } -body {
+        twapi::get_share_info C\$;      # Administrative share C$
+    } -result ""
+    
+    ###
+    
+    test get_share_info-2.0 {
+        Verify all options are returned when -all specified
+    } -constraints {
+        nt
+    } -body {
+        array unset shareinfo
+        array set shareinfo [twapi::get_share_info C\$ -all]
+        ::setops::symdiff [array names shareinfo] {
+            -name -type -comment -max_conn -current_conn -path -secd 
+        }
+    } -result ""
+
+    ###
+
+    test get_share_info-2.1 {
+        Verify correct values for all options -all specified
+    } -constraints {
+        nt
+    } -setup {
+        fill_shares 1
+    } -body {
+        set result [list ]
+        foreach name [array names shares] {
+            array unset shareinfo
+            array set shareinfo [twapi::get_share_info $name -all]
+            lappend result [verify_share $name shareinfo]
+        }
+        concat [join $result \n]
+    } -result ""
+
+
+    ###
+
+    test get_share_info-3.0 {
+        Get share information on another system
+    } -constraints {
+        nt TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ###
+
+    set testnum 3
+    foreach opt {
+        -name -type -comment -max_conn -current_conn -path -secd 
+    } {
+        test get_share_info-[incr testnum].0 "Verify get_share_info $opt" -constraints {
+            nt
+        } -body "
+            set result \[list \]
+            foreach name \[array names shares\] {
+                array unset shareinfo
+                array set shareinfo \[twapi::get_share_info \$name $opt\]
+                lappend result \[verify_share \$name shareinfo\]
+            }
+            concat \[join \$result \n \]
+       " -result ""
+    }
+
+    ################################################################
+
+    test set_share_info-1.0 {
+        Set share comment
+    } -constraints {
+        nt systemmodificationok
+    } -setup {
+        make_test_share
+    } -body {
+        if {0} {
+        set comment [clock format [clock seconds]]
+        }
+        set comment foo
+        expr {
+              [twapi::set_share_info $export_name -comment $comment] == "" &&
+              [get_share_field $export_name -comment] == $comment
+          }
+    } -result "" -returnCodes error
+
+    ###
+
+    test set_share_info-2.0 {
+        Set share max conn
+    } -constraints {
+        nt systemmodificationok
+    } -setup {
+        make_test_share
+    } -body {
+        set conn [get_share_field $export_name -max_conn]
+        incr conn 10
+        expr {
+              [twapi::set_share_info $export_name -max_conn $conn] == "" &&
+              [get_share_field $export_name -max_conn 1] == $conn
+          }
+    } -result 1
+
+    ###
+
+    test set_share_info-3.0 {
+        Set share security descriptor
+    } -constraints {
+        nt systemmodificationok TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ###
+
+    test set_share_info-4.0 {
+        Set share information on another system
+    } -constraints {
+        nt systemmodificationok TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ################################################################
+
+    test get_client_shares-1.0 {
+        Get list of client shares
+    } -constraints {
+        nt TBD
+    } -body {
+        twapi::get_client_shares
+        set verification TBD
+    } -result TBD
+
+    ################################################################
+
+    test connect_share-1.0 {
+        Connect to a network share
+    } -constraints {
+        nt TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ################################################################
+
+    test disconnect_share-1.0 {
+        Disconnect a network share
+    } -constraints {
+        nt TBD
+    } -setup {
+        TBD
+    } -body {
+        TBD
+    } -cleanup {
+        TBD
+    } -result TBD
+
+    ################################################################
+
+    test get_mapped_share_info-1.0 {
+        Get all information about a mapped share
+    } -constraints {
+        nt
+    } -setup {
+        set drive [lindex [twapi::get_logical_drives -type remote] 0]
+        if {$drive == ""} {
+            error "No mapped drives found"
+        }
+        array unset mappedinfo
+    } -body {
+        array set mappedinfo [twapi::get_mapped_share_info $drive -all]
+        ::setops::symdiff [array names mappedinfo] {
+            -uncpath -uncvolume -relativepath -user
+        }
+    } -result ""
+
+    ################################################################
+
+    test get_mapped_share_info-2.0 {
+        Get uncpath information about a mapped share
+    } -constraints {
+        nt
+    } -setup {
+        set drive [lindex [twapi::get_logical_drives -type remote] 0]
+        if {$drive == ""} {
+            error "No mapped drives found"
+        }
+        array unset mappedinfo
+    } -body {
+        array set mappedinfo [twapi::get_mapped_share_info $drive -uncpath]
+        ::setops::symdiff [array names mappedinfo] {
+            -uncpath
+        }
+    } -result ""
+
+    ################################################################
+
+    test get_mapped_share_info-3.0 {
+        Get uncvolume information about a mapped share
+    } -constraints {
+        nt
+    } -setup {
+        set drive [lindex [twapi::get_logical_drives -type remote] 0]
+        if {$drive == ""} {
+            error "No mapped drives found"
+        }
+    } -body {
+        array unset mappedinfo
+        array set mappedinfo [twapi::get_mapped_share_info $drive -uncvolume]
+        ::setops::symdiff [array names mappedinfo] {
+            -uncvolume
+        }
+    } -result ""
+
+    ################################################################
+
+    test get_mapped_share_info-4.0 {
+        Get relative path information about a mapped share
+    } -constraints {
+        nt
+    } -setup {
+        set drive [lindex [twapi::get_logical_drives -type remote] 0]
+        if {$drive == ""} {
+            error "No mapped drives found"
+        }
+    } -body {
+        array unset mappedinfo
+        array set mappedinfo [twapi::get_mapped_share_info $drive -relativepath]
+        ::setops::symdiff [array names mappedinfo] {
+            -relativepath
+        }
+    } -result ""
+
+    ################################################################
+
+    test get_mapped_share_info-5.0 {
+        Get user information about a mapped share
+    } -constraints {
+        nt
+    } -setup {
+        set drive [lindex [twapi::get_logical_drives -type remote] 0]
+        if {$drive == ""} {
+            error "No mapped drives found"
+        }
+    } -body {
+        array unset mappedinfo
+        array set mappedinfo [twapi::get_mapped_share_info $drive -user]
+        ::setops::symdiff [array names mappedinfo] {
+            -user
+        }
+    } -result ""
+
+    ################################################################
+
+    ::tcltest::cleanupTests
+}
+
+namespace delete ::twapi::share::test

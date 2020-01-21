@@ -1,0 +1,169 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: inchidll - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\6600GT\CONFIG~1\Temp\RSP14.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "INCHIDLL_EXPORTS" /Fp"Release/inchidll.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_MAIN\e_0dstereo.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_MAIN\e_ichi_io.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_MAIN\e_ichi_parms.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_MAIN\e_inchi_atom.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_MAIN\e_mol2atom.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_MAIN\e_readinch.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_MAIN\e_readmol.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_MAIN\e_readstru.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_MAIN\e_util.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichi_bns.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichican2.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichicano.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichicans.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichiisot.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichilnct.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichimak2.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichimake.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichimap1.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichimap2.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichimap4.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichinorm.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichiparm.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichiprt1.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichiprt2.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichiprt3.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichiqueu.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichiread.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichiring.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichirvr1.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichirvr2.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichirvr3.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichirvr4.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichirvr5.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichirvr6.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichirvr7.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichisort.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichister.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\ichitaut.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\inchi.cpp"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\inchi_dll.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\runichi.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\strutil.c"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\tclextension.cpp"
+"C:\VTKBANBRANDY\InchiTcl\inchidll\INCHI_DLL\util.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\6600GT\CONFIG~1\Temp\RSP14.tmp" 
+Creating temporary file "C:\DOCUME~1\6600GT\CONFIG~1\Temp\RSP15.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /incremental:no /pdb:"Release/inchidll.pdb" /machine:I386 /out:"Release/inchidll.dll" /implib:"Release/inchidll.lib" 
+.\Release\e_0dstereo.obj
+.\Release\e_ichi_io.obj
+.\Release\e_ichi_parms.obj
+.\Release\e_inchi_atom.obj
+.\Release\e_mol2atom.obj
+.\Release\e_readinch.obj
+.\Release\e_readmol.obj
+.\Release\e_readstru.obj
+.\Release\e_util.obj
+.\Release\ichi_bns.obj
+.\Release\ichican2.obj
+.\Release\ichicano.obj
+.\Release\ichicans.obj
+.\Release\ichiisot.obj
+.\Release\ichilnct.obj
+.\Release\ichimak2.obj
+.\Release\ichimake.obj
+.\Release\ichimap1.obj
+.\Release\ichimap2.obj
+.\Release\ichimap4.obj
+.\Release\ichinorm.obj
+.\Release\ichiparm.obj
+.\Release\ichiprt1.obj
+.\Release\ichiprt2.obj
+.\Release\ichiprt3.obj
+.\Release\ichiqueu.obj
+.\Release\ichiread.obj
+.\Release\ichiring.obj
+.\Release\ichirvr1.obj
+.\Release\ichirvr2.obj
+.\Release\ichirvr3.obj
+.\Release\ichirvr4.obj
+.\Release\ichirvr5.obj
+.\Release\ichirvr6.obj
+.\Release\ichirvr7.obj
+.\Release\ichisort.obj
+.\Release\ichister.obj
+.\Release\ichitaut.obj
+.\Release\inchi.obj
+.\Release\inchi_dll.obj
+.\Release\runichi.obj
+.\Release\strutil.obj
+.\Release\tclextension.obj
+.\Release\util.obj
+]
+Creating command line "link.exe @C:\DOCUME~1\6600GT\CONFIG~1\Temp\RSP15.tmp"
+<h3>Output Window</h3>
+Compiling...
+e_0dstereo.c
+e_ichi_io.c
+e_ichi_parms.c
+e_inchi_atom.c
+e_mol2atom.c
+e_readinch.c
+e_readmol.c
+e_readstru.c
+e_util.c
+ichi_bns.c
+ichican2.c
+ichicano.c
+ichicans.c
+ichiisot.c
+ichilnct.c
+ichimak2.c
+ichimake.c
+ichimap1.c
+ichimap2.c
+ichimap4.c
+ichinorm.c
+ichiparm.c
+ichiprt1.c
+ichiprt2.c
+ichiprt3.c
+ichiqueu.c
+ichiread.c
+ichiring.c
+ichirvr1.c
+ichirvr2.c
+ichirvr3.c
+ichirvr4.c
+ichirvr5.c
+ichirvr6.c
+ichirvr7.c
+ichisort.c
+ichister.c
+ichitaut.c
+inchi.cpp
+inchi_dll.c
+runichi.c
+strutil.c
+tclextension.cpp
+util.c
+Linking...
+   Creating library Release/inchidll.lib and object Release/inchidll.exp
+inchi.obj : error LNK2001: unresolved external symbol __imp__Tcl_CreateCommand
+inchi.obj : error LNK2001: unresolved external symbol __imp__Tcl_PkgProvide
+inchi.obj : error LNK2001: unresolved external symbol __imp__Tcl_GetString
+inchi.obj : error LNK2001: unresolved external symbol __imp__Tcl_SetVar2Ex
+inchi.obj : error LNK2001: unresolved external symbol __imp__Tcl_NewDoubleObj
+Release/inchidll.dll : fatal error LNK1120: 5 unresolved externals
+Error executing link.exe.
+
+
+
+<h3>Results</h3>
+inchidll.dll - 6 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

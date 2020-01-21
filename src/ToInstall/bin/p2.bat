@@ -1,0 +1,2 @@
+tkcon main.tcl
+pause

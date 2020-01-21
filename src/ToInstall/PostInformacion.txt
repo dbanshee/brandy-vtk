@@ -1,0 +1,22 @@
+
+The supporting software required to execute the FrontEnd is
+
+Draw: MDL®ISIS Draw 2.4 (www.mdli.com)
+
+Molecular Modeling: 
+TINKER - Software Tools for Molecular Design (dasher.wustl.edu/tinker).
+
+Charge density and Vibrational Presentations:
+MDL® Chime Plugin SP 2.4 (www.mdli.com) 
+
+All these programs are downloaded and installed during this installation.
+If you checkout the installation of this software the program will be unreliable.
+
+Many of these programs have licensing restriction.
+Be sure to consult the License Agreement before using the programs.
+
+
+
+GREGORIO TORRES GARCIA (torres@uma.es)
+FRANCISCO NAJERA ALBENDIN
+OSCAR NOEL AMAYA GARCIA

@@ -1,0 +1,29 @@
+# Microsoft Developer Studio Generated Dependency File, included by tlistadll.mak
+
+.\common.cpp : \
+	".\common.h"\
+	
+
+.\listo.cpp : \
+	".\common.h"\
+	".\modulo.h"\
+	".\tclextension.h"\
+	{$(INCLUDE)}"tcl.h"\
+	{$(INCLUDE)}"tclDecls.h"\
+	{$(INCLUDE)}"tclPlatDecls.h"\
+	
+
+.\modulo.cpp : \
+	".\modulo.h"\
+	{$(INCLUDE)}"tcl.h"\
+	{$(INCLUDE)}"tclDecls.h"\
+	{$(INCLUDE)}"tclPlatDecls.h"\
+	
+
+.\tclextension.cpp : \
+	"..\..\..\archivos de programa\microsoft visual studio\vc98\include\basetsd.h"\
+	".\common.h"\
+	{$(INCLUDE)}"tcl.h"\
+	{$(INCLUDE)}"tclDecls.h"\
+	{$(INCLUDE)}"tclPlatDecls.h"\
+	

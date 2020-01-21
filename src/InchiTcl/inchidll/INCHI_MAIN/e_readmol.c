@@ -1,0 +1,54 @@
+/*
+ * International Union of Pure and Applied Chemistry (IUPAC)
+ * International Chemical Identifier (InChI)
+ * Version 1
+ * Software version 1.01
+ * July 21, 2006
+ * Developed at NIST
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <math.h>
+#include <float.h>
+#include <string.h>
+#include <ctype.h>
+
+#include "e_mode.h"
+#include "inchi_api.h"
+#include "e_ctl_data.h"
+
+#include "e_ichisize.h"
+#include "e_comdef.h"
+#include "e_util.h"
+#include "e_readmol.h"
+#include "e_ichicomp.h"
+#include "e_ichi_io.h"
+#include "e_readstru.h"
+#include "e_inpdef.h"
+
+#define AddMOLfileError        e_AddMOLfileError
+#define remove_one_lf          e_remove_one_lf
+#define RemoveNonPrintable     e_RemoveNonPrintable
+#define mystrncpy              e_mystrncpy
+#define read_mol_file          e_read_mol_file
+#define bypass_sdf_data_items  e_bypass_sdf_data_items
+#define extract_ChargeRadical  e_extract_ChargeRadical
+#define delete_mol_data        e_delete_mol_data
+#define remove_trailing_spaces e_remove_trailing_spaces
+#define normalize_name         e_normalize_name
+#define read_sdfile_segment    e_read_sdfile_segment
+#define CopyMOLfile            e_CopyMOLfile
+#define LtrimRtrim             e_LtrimRtrim
+
+#ifndef inchi_calloc
+#define inchi_calloc            e_inchi_calloc
+#endif
+
+#ifndef inchi_free
+#define inchi_free              e_inchi_free
+#endif
+
+#include "lreadmol.h"
+

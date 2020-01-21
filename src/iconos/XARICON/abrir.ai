@@ -1,0 +1,175 @@
+%!PS-Adobe-3.0
+%%Creator: Adobe Illustrator(TM) 7.0 by Xara.
+%%For: (Download version) (None)
+%%Title: (ABRIR.xar *)
+%%CreationDate: (23/01/07) (05:43 PM)
+%%BoundingBox: 42 316 1262 1104
+%%DocumentProcessColors: Cyan Magenta Yellow Black
+%%DocumentNeededResources: procset Adobe_level2_AI5 1.2 0 
+%%+ procset Adobe_packedarray 2.0 0
+%%+ procset Adobe_ColorImage_AI6 1.1 0
+%%+ procset Adobe_cshow 2.0 8
+%%+ procset Adobe_cmykcolor 1.1 0
+%%+ procset Adobe_customcolor 1.0 0
+%%+ procset Adobe_typography_AI5 1.0 1
+%%+ procset Adobe_pattern_AI3 1.0 1
+%%+ procset Adobe_Illustrator_AI5 1.2 0
+%AI3_ColorUsage: Color
+%AI5_FileFormat 2.0
+%%EndComments
+%%BeginProlog
+%%IncludeResource: procset Adobe_level2_AI5 1.2 0
+%%IncludeResource: procset Adobe_packedarray 2.0 0
+%%IncludeResource: procset Adobe_ColorImage_AI6 1.1 0
+%%IncludeResource: procset Adobe_cshow 2.0 8
+%%IncludeResource: procset Adobe_cmykcolor 1.1 0
+%%IncludeResource: procset Adobe_customcolor 1.0 0
+%%IncludeResource: procset Adobe_typography_AI5 1.1 0
+%%IncludeResource: procset Adobe_pattern_AI3 1.0 1
+%%IncludeResource: procset Adobe_Illustrator_AI5 1.2 0
+%%EndProlog
+%%BeginSetup
+Adobe_level2_AI5 /initialize get exec
+Adobe_packedarray /initialize get exec
+Adobe_ColorImage_AI6  /initialize get exec
+Adobe_cshow /initialize get exec
+Adobe_cmykcolor /initialize get exec
+Adobe_customcolor /initialize get exec
+Adobe_Illustrator_AI5_vars Adobe_Illustrator_AI5 Adobe_typography_AI5 /initialize get exec
+Adobe_pattern_AI3 /initialize get exec
+Adobe_Illustrator_AI5 /initialize get exec
+2 Bn
+%AI5_BeginGradient: (Linear Gradient 2)
+(Linear Gradient 2) 0 2 Bd
+[
+0.40 0.40 0.40 0.00 0.60 0.60 0.60 2 50 100%_Bs
+0.00 0.00 0.00 0.00 1 50 0%_Bs
+BD
+%AI5_EndGradient
+%AI5_BeginGradient: (Linear Gradient 1)
+(Linear Gradient 1) 0 4 Bd
+[
+0.01 0.20 0.42 0.00 0.98 0.79 0.57 2 50 100%_Bs
+0.19 0.45 0.69 0.00 0.80 0.54 0.30 2 50 91%_Bs
+0.01 0.20 0.42 0.00 0.98 0.79 0.57 2 50 6%_Bs
+0.00 0.00 0.00 0.00 1 50 0%_Bs
+BD
+%AI5_EndGradient
+%%EndSetup
+%AI5_BeginLayer
+1 1 1 1 0 0 0 0 0 0 Lb
+(Frame 1) Ln
+1 XR
+0.00 0.00 0.00 (Black) 0 1 XX
+0.50 w
+0 j
+[ ] 0 d
+0 J
+0.00 0.00 0.00 0.00 (White) 0 x
+43.58 1104.30 m
+43.58 603.97 l
+543.83 603.97 l
+543.83 1104.30 l
+43.58 1104.30 l
+b
+20.53 w
+0.00 0.00 0.00 0.00 (White) 0 x
+55.60 866.59 m
+55.60 668.37 l
+55.60 646.79 75.90 629.28 100.91 629.28 c
+380.61 629.28 l
+405.62 629.28 425.92 646.79 425.92 668.37 c
+425.92 866.59 l
+425.92 888.17 405.62 905.68 380.61 905.68 c
+218.41 905.68 l
+195.53 944.28 l
+123.60 944.28 l
+100.91 905.68 l
+75.90 905.68 55.60 888.17 55.60 866.59 c
+1 (Linear Gradient 1) 79.46 904.79 -40.0784 425.148 1 0 0 1 0 0 Bg
+b
+0.00 0.00 0.00 0.00 (White) 0 x
+136.00 843.82 m
+58.02 652.55 l
+58.02 640.69 72.23 631.07 89.75 631.07 c
+400.49 631.07 l
+418.01 631.07 432.23 640.69 432.23 652.55 c
+506.12 844.87 l
+506.12 856.73 491.90 866.35 474.39 866.35 c
+167.74 865.30 l
+150.22 865.30 136.00 855.67 136.00 843.82 c
+1 (Linear Gradient 2) 50.04 948.37 -47.4827 367.672 1 0 0 1 0 0 Bg
+b
+24 w
+2 j
+0.00 0.00 0.00 (Black) 0 1 Xx
+104.74 987.86 m
+175.65 1058.56 263.12 1077.69 337.61 1001.48 c
+S
+359.16 1030.93 m
+307.67 980.60 l
+392.14 945.70 l
+f
+0.14 w
+0 j
+0.00 0.00 0.00 0.00 (White) 0 x
+1112.35 467.23 m
+1112.35 317.36 l
+1262.21 317.36 l
+1262.21 467.23 l
+1112.35 467.23 l
+b
+5.53 w
+0.00 0.00 0.00 0.00 (White) 0 x
+942.07 636.77 m
+942.07 583.30 l
+942.07 577.48 947.54 572.75 954.29 572.75 c
+1029.74 572.75 l
+1036.48 572.75 1041.96 577.48 1041.96 583.30 c
+1041.96 636.77 l
+1041.96 642.59 1036.48 647.31 1029.74 647.31 c
+985.99 647.31 l
+979.81 657.73 l
+960.41 657.73 l
+954.29 647.31 l
+947.54 647.31 942.07 642.59 942.07 636.77 c
+1 (Linear Gradient 1) 948.51 647.07 -40.0785 114.683 1 0 0 1 0 0 Bg
+b
+0.00 0.00 0.00 0.00 (White) 0 x
+963.76 630.63 m
+942.72 579.03 l
+942.72 575.83 946.55 573.24 951.28 573.24 c
+1035.10 573.24 l
+1039.83 573.24 1043.66 575.83 1043.66 579.03 c
+1063.60 630.91 l
+1063.60 634.11 1059.76 636.70 1055.04 636.70 c
+972.32 636.42 l
+967.59 636.42 963.76 633.82 963.76 630.63 c
+1 (Linear Gradient 2) 940.57 658.83 -47.4828 99.1786 1 0 0 1 0 0 Bg
+b
+0.00 0.00 0.60 (Dark Blue) 0 1 XX
+10 w
+2 j
+0.00 0.00 0.60 (Dark Blue) 0 1 Xx
+955.32 669.48 m
+974.45 688.55 998.05 693.71 1018.14 673.15 c
+S
+1027.12 685.43 m
+1005.67 664.46 l
+1040.86 649.91 l
+f
+LB
+%AI5_EndLayer
+%%PageTrailer
+showpage
+%%Trailer
+Adobe_Illustrator_AI5 /terminate get exec
+Adobe_level2_AI5 /terminate get exec
+Adobe_packedarray /terminate get exec
+Adobe_ColorImage_AI6 /terminate get exec
+Adobe_cshow /terminate get exec
+Adobe_cmykcolor /terminate get exec
+Adobe_customcolor /terminate get exec
+Adobe_typography_AI5 /terminate get exec
+Adobe_pattern_AI3 /terminate get exec
+%%EOF

@@ -1,0 +1,168 @@
+<html><head>
+
+<meta http-equiv="Content-type" content="text/html; charset=utf-8"><title>Building Tcl DLL's for Windows</title>
+
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expire" content="Mon, 04 Dec 1999 21:29:02 GMT">
+<link rel="stylesheet" href="2419_files/wikit-css.css" type="text/css">
+<!-- base href="http://wiki.tcl.tk/" --></head><body bgcolor="#ffffff">
+<h2><a href="http://wiki.tcl.tk/references/2419%21">Building Tcl DLL's for Windows</a></h2><p></p><p><b>Note</b> <a href="http://wiki.tcl.tk/1900">PT</a> 25-Aug-2005: Some of this information is getting old and the page could do with an update. There is the <i>sampleextension</i>
+package available via CVS from sourceforge and this provides an example
+of how to write a Tcl extension and also shows how to setup the
+autoconf files and makefiles for use on unix. The win/ subdirectory has
+a fairly useful makefile for MSVC++ as well and I would recommend
+modifying this makefile.vc in preference to rolling your own.</p><pre> For the sampleextension:
+ cvs -d:pserver:anonymous@cvs.sourceforge.net:/projects/tcl login      (no password)
+ cvs -d:pserver:anonymous@cvs.sourceforge.net:/projects/tcl co sampleextension</pre><p><b>Using Microsoft Visual C++ 6</b></p><ul><li>Create a new win32 dynamic link library project and call it something nice, like <i>tcldemo</i>. This is going to be our package name too.  <i>(Note:
+Creating an MFC DLL project may cause problems, as the MFC framework
+infrastructure can conflict with the declarations in example code.
+You'll know you've got a _declspec() problem if you get unresolved
+symbols like __imp_TclCreateObjCommand() -RWT)</i>
+</li><li>Select an 'Empty DLL' on the next dialog.
+</li><li>Before you get going, make sure you have told Visual Studio
+about the Tcl headers and libraries. To do this, open
+Tools-&gt;Options-&gt;Directories and give the Tcl include directory in
+the includes box and the libraries in the libraries box.
+</li><li>Open up the Project settings menu item for your new project
+and go to the C++ tab. Add USE_TCL_STUBS to the list of defined symbols
+and in the Link tab prepend tclstub83.lib to the list of libraries.
+(Adust the numerical suffix for your version of tcl).
+</li><li>Now we can write some code. Create a new C++ source file, called tcldemo.cpp and paste in the code below.
+</li><li>Build it. Ignore the whining about MSCVRT conflicts. You now have a <i>DLL</i> in either Debug/Release.
+</li><li>Fire up tclsh or better tkcon from the Debug or Release subdirectory under your project and issue</li></ul><pre>  load tcldemo.dll Tcldemo
+  set tcldemo_version
+  package require Tcldemo</pre><ul><li>You should get 0.1 printed twice!</li></ul><p><b>Using <a href="http://wiki.tcl.tk/4396">mingw32</a> <a href="http://wiki.tcl.tk/2613">GNU</a> C / C++</b></p><p>If
+you don't happen to have a copy of Microsoft's compiler then you can
+get a copy of GNU C compiled for the win32 platform. The mingw32
+project is the minimal approach which uses only the native libraries
+and so doesn't support unix porting much - See <a href="http://wiki.tcl.tk/14828">Building Tcl/Tk with Mingw</a> for info about building Tcl/Tk with Msys and Mingw.</p><ul><li>Create a .cpp or .cc file with the code below using your favourite editor. (eg: emacs)
+</li><li>Create a tcldemo.def file with the following lines:</li></ul><pre> EXPORTS
+ Tcldemo_Init
+ Tcldemo_SafeInit</pre><ul><li>Compile the code:</li></ul><pre> g++ -Wall -g -Ii:/opt/Tcl/include -c tcldemo.cpp -o tcldemo.o</pre><ul><li>Link the code. If you are using a standard distribution such as ActiveTcl then see <a href="http://wiki.tcl.tk/2435">How to create mingw32 libraries from DLLs</a>:</li></ul><pre> dllwrap --driver-name g++ -def tcldemo.def -o tcldemo.dll tcldemo.o -Li:/opt/Tcl/lib -ltcl83 -lm</pre><ul><li>Voila: you now have a tcldemo.dll. Test as above.</li></ul><p>I've included a suitable Makefile below.</p><p>[ <i>Q:</i> isn't it possible to do this without a .def file? I thought the __declspec(dllexport) was supposed to make it unnecessary ]</p><hr size="1"><p>Dana
+Robinson: You can use either. You can even have some functions declared
+as __declspec(dllexport) and other ones specified in a .def file and
+it'll all work out. Personally, I like to use .def files with
+platform-independent code. They aren't that hard to maintain and you
+don't have to mess up your pretty ANSI C/C++ code with a bunch of
+#ifdefs and MS-specific code.</p><hr size="1"><p><b>The code:</b></p><pre> #include &lt;windows.h&gt;
+ #include &lt;tcl.h&gt;
+
+ #ifndef DECLSPEC_EXPORT
+ #define DECLSPEC_EXPORT __declspec(dllexport)
+ #endif // DECLSPEC_EXPORT
+
+ BOOL APIENTRY
+ DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
+ {
+     return TRUE;
+ }
+
+ EXTERN_C int DECLSPEC_EXPORT
+ Tcldemo_Init(Tcl_Interp* interp)
+ {
+ #ifdef USE_TCL_STUBS
+     Tcl_InitStubs(interp, "8.3", 0);
+ #endif
+     Tcl_Obj *version = Tcl_SetVar2Ex(interp, "tcldemo_version", NULL,
+                                      Tcl_NewDoubleObj(0.1), TCL_LEAVE_ERR_MSG);
+     if (version == NULL)
+         return TCL_ERROR;
+     int r = Tcl_PkgProvide(interp, "Tcldemo", Tcl_GetString(version));
+
+     // Call Tcl_CreateObjCommand etc.
+
+     return r;
+ }
+
+ EXTERN_C int DECLSPEC_EXPORT
+ Tcldemo_SafeInit(Tcl_Interp* interp)
+ {
+     // We don't need to be specially safe so...
+     return Tcldemo_Init(interp);
+ }</pre><hr size="1"><pre> # -*- Makefile -*- for Tcl Demo
+ #
+ # @(#)$Id: 2419,v 1.33 2004/12/16 07:00:16 jcw Exp $
+
+ CC      =g++
+ DLLWRAP =dllwrap
+ DLLTOOL =dlltool
+ RM      =rm -f
+ CFLAGS  =-Wall -Ii:/opt/tcl/include -DUSE_TCL_STUBS
+ LDFLAGS =-Li:/opt/tcl/lib
+ LIBS    =-ltclstub83
+
+ DLL     =tcldemo.dll
+ DEFFILE =tcldemo.def
+
+ WRAPFLAGS =--driver-name $(CC) --def $(DEFFILE)
+
+ CSRCS   =tcldemo.cpp
+ OBJS    =$(CSRCS:.cpp=.o)
+
+ $(DLL): $(OBJS)
+        $(DLLWRAP) $(WRAPFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
+
+ clean:
+        $(RM) *.o core *~
+
+ %.o: %.cpp
+        $(CC) $(CFLAGS) -c $&lt; -o $@
+
+ .PHONY: clean
+
+ #
+ # Local variables:
+ #   mode: makefile
+ # End:
+ #</pre><hr size="1"><p>This excellent piece of work was created and put here by <a href="http://wiki.tcl.tk/1752">Pat Thoyts</a>.  Thanks Pat!</p><hr size="1"><p>Paul
+Kienzle: With recent versions of mingw you can dispense with .def
+files, DECLSPEC_EXPORT, #include &lt;windows.h&gt;, DllMain, and
+dllwrap, and just use:</p><pre>  g++ -Wall -g -Ii:/opt/Tcl/include -DUSE_TCL_STUBS -c tcldemo.cpp -o tcldemo.o
+  g++ -shared -o tcldemo.dll tcldemo.o -Li:/opt/Tcl/lib -ltclstub83</pre><p>After
+correcting the paths in my Makefile, my tcl extension from unix built
+and worked fine with ActiveState's binary distribution for windows.</p><hr size="1"><p>I
+was unable to produce functional DLL with Paul Kienzles advice, but
+found another easy way to compile shared library with MinGW for
+MinGW-compiled Tcl:</p><pre> gcc -I C:\Tcl\include -s -shared -o test.dll test.c C:\Tcl\bin\tcl84.dll</pre><p>Apparently
+newer versions of gcc can extract all required names from the DLL by
+itself, without using libtclXX.a or libtclstubXX.a. --<a href="http://wiki.tcl.tk/9080">mjk</a></p><p>(
+g++.exe can do that, too. But then use a extern "C" block for init and
+wrapper functions. You can then still call your other C++ functions and
+create objects, use new and delete etc. and pass the result back to the
+wrapper function in the extern "C" block. )</p><p>I also was able to
+make this work with Active Tcl 8.4, but you have to remember to remove
+"USE_TCL_STUBS" fromn your source code or compile option --<a href="http://wiki.tcl.tk/1893">Larry Rowe</a></p><hr size="1"><p>See also <b><a href="http://wiki.tcl.tk/9372">Building Extensions on Windows</a></b>.</p><hr size="1"><p>Question: Once you have built the extensions, where should they be installed, and what gets installed?</p><hr size="1"><p>Hello!</p><p>When compiling Tcldemo with MS Visual Studio .NET I got some errors:</p><pre>    tcldemo error LNK2019: unresolved external symbol __imp__Tcl_PkgProvide referenced in function _Tcldemo_Init
+    tcldemo error LNK2019: unresolved external symbol __imp__Tcl_GetString referenced in function _Tcldemo_Init
+    tcldemo error LNK2019: unresolved external symbol __imp__Tcl_NewDoubleObj referenced in function _Tcldemo_Init
+    tcldemo error LNK2019: unresolved external symbol __imp__Tcl_SetVar2Ex referenced in function _Tcldemo_Init
+    tcldemo fatal error LNK1120: 4 unresolved externals</pre><p>How to correct these errors?</p><p>And after executing</p><pre>    gcc -I C:\Tcl\include -s -shared -o tcldemo.dll tcldemo.c C:\Tcl\bin\tcl84.dll</pre><p>in Cygwin I could'n load tcldemo.dll, because of this error:</p><pre>    couldn't load library "tcldemo.dll": this library or a dependent library couldn't be found in library path
+    when executing
+    "load tcldemo.dll Tcldemo"</pre><p>Why does it happen?</p><p>Thank you. Anton.</p><p><a href="http://wiki.tcl.tk/11149">Peter Newman</a> 22 March 2005: I can't help with the MS Visual Studio problems. But the <i>couldnt load library "tcldemo.dll"</i> should be easy to fix. It just means that <i>tcldemo.dll</i> isn't where <i>wish</i> or <i>tclsh</i> can find it. See the <i>library</i> and <i>tclvars</i> manpages - for details of where Tcl searches for things. You'll have to EITHER; copy <i>tcldemo.dll</i> to one of the directorys Tcl searches for loadable stuff in, OR; add the directory <i>tcldemo.dll</i> is in, to the appropriate Tcl variable. See the <i>library</i> and <i>tclvars</i> manpages - and in particular, variables like; <i>tcl_library</i>, <i>auto_path</i>, <i>env(TCL_LIBRARY)</i> and <i>env(TCLLIBPATH)</i>.</p><p><a href="http://wiki.tcl.tk/2529">Erik Leunissen</a>
+7 Jan 2006 In my experience, the error message "couldn't load library
+XXXX: this library or a dependent library couldn't be found in library
+path" is not as easy to fix as suggested above. The environment
+variables TCL_LIBRARY and TCLLIBPATH do not relate to the [load]
+command, but rather to [package require]. Therefore, their setting
+won't affect this problem. The problem is that the message doesn't say
+which library couldn't be found. The web page at:</p><pre>    <a rel="nofollow" href="http://flashexperiments.insh-allah.com/ApacheError126.html">http://flashexperiments.insh-allah.com/ApacheError126.html</a></pre><p>gives
+advice about how to find out which library that is. Using the File
+Monitor tool mentioned in that page, I have been succesful in resolving
+such a problem.</p><hr size="1"><p>In the Tcldemo example when I added:</p><p>Tcl_CreateObjCommand(interp, "fact",wrap_fact, (ClientData) NULL,</p><pre>		(Tcl_CmdDeleteProc *) NULL);</pre><p>I get the following error:</p><pre> --------------------Configuration: new_test - Win32 Debug--------------------
+ Compiling...
+ tcldemo.cpp
+ C:\new_test\tcldemo.cpp(45) : error C2664: 'struct Tcl_Command_ *(struct Tcl_Interp *,const char *,int  (__cdecl *)(void *,struct Tcl_Interp *,int,struct Tcl_Obj *const * ),void *,void (__cdecl *)(void *))'  : cannot convert parameter 3 from '' to 'int (__cdecl *)(void *,struct Tcl_Interp *,int,struct Tcl_Obj *const * )'
+         None of the functions with this name in scope match the target type
+ Error executing cl.exe.
+
+ new_test.dll - 1 error(s), 0 warning(s)</pre><p>Appreciate any insights/help. Thanks. RGM</p><p><a href="http://wiki.tcl.tk/1900">PT</a>
+This error is the compiler informing you that your function has the
+wrong type. Parameter 3 is the C function that will implement your <i>fact</i> command and should be a <i>Tcl_ObjCmdProc</i> type. Looks to me like you maybe forgot to declare the prototype? Something like this should do:</p><pre> static Tcl_ObjCmdProc HelloObjCmdProc;
+
+ int
+ HelloObjCmdProc(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+ {
+    Tcl_SetObjResult(interp, Tcl_NewStringObj("hello, world", -1));
+    return TCL_OK;
+ }</pre><hr size="1"><p><a href="http://wiki.tcl.tk/4019">Category Foreign Interfaces</a> - <a href="http://wiki.tcl.tk/3710">Category Porting</a> - <a href="http://wiki.tcl.tk/8950">Category Windows</a></p><p></p><hr noshade="noshade"><p id="footer">Updated <font size="-1">27 Jan 2006, 12:52 GMT</font> &nbsp;-&nbsp; Edit <a href="http://wiki.tcl.tk/edit/2419@">Building Tcl DLL's for Windows</a> &nbsp;-&nbsp; <a href="http://mini.net/tclrevs/2419">Revisions</a><br><a href="http://wiki.tcl.tk/2">Search</a> - <a href="http://wiki.tcl.tk/4">Recent changes</a> - 11 <a href="http://wiki.tcl.tk/references/2419%21">References</a> - About <a href="http://wiki.tcl.tk/1">Wikit</a> - Go to <a href="http://wiki.tcl.tk/0">The Tcler's Wiki</a> - <a href="http://wiki.tcl.tk/3">Help</a></p>
+
+</body></html>

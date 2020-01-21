@@ -1,0 +1,13 @@
+El protocolo de creacion de iconos es:
+Crear un icono y transformarlo a formato ico con IIco:
+todods los iconos que tenemos en el programa son 22x22 o 16x16
+una vez tenemos el fichero abrir una ventana de wish84
+package require Img
+cd C:/VTKBANBRANDY/trunk/iconos/XARICON
+package require BWidget
+set aa [image create photo -file "nombre del fichero ico"]
+set a [Button .b -activebackground #a0a0a0 -image $aa]
+nos devuelve un identificador que es el nombre de la imagen
+y ahora
+$aa data -format gif
+devuelve un texto ascii copiarlo e insertarlo en brandy
